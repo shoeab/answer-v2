@@ -5,7 +5,7 @@ var express = require("express"),
     mongoose = require('mongoose');
 
     // Connection to DB
-    mongoose.connect('mongodb://localhost/tvshows', function(err, res) {
+    mongoose.connect('mongodb://localhost/priyo_answer_v1', function(err, res) {
       if(err) throw err;
       console.log('Connected to Database');
     });
@@ -18,6 +18,9 @@ var express = require("express"),
     // Import Models and controllers
     var models     = require('./models/tvshow')(app, mongoose);
     var TVShowCtrl = require('./controllers/tvshows');
+
+    var models     = require('./models/question')(app, mongoose);
+    var Question = require('./controllers/questions');
 
     // Example Route
     var router = express.Router();
@@ -39,6 +42,19 @@ var express = require("express"),
       .delete(TVShowCtrl.deleteTVShow);
 
     app.use('/api', tvshows);
+
+    var questions = express.Router();
+
+    questions.route('/questions/:limit/:skip')
+      .get(Question.findAllQuestions)
+      .post(Question.addQuestion);
+
+    questions.route('/questions/:id')
+      .get(Question.findById)
+      .put(Question.updateQuestion)
+      .delete(Question.deleteQuestion);
+
+    app.use('/api', questions);
 
     // Start server
     app.listen(3000, function() {
